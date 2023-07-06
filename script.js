@@ -1,42 +1,18 @@
-//DECLARATION DE MES VARIABLES
-//DIMENSIONS DU CANVAS (ESPACE DE DESSIN)
 var canvasWidth         = 900;
 var canvasHeight        = 600;
 var blockSize           = 30;
-//CONTEXTE DE JEU
 var ctx;
-//VITESSE DE JEU
 var delay               = 100;
-//OBJETS SERPENT ET POMME
 var snakee;
 var applee;
-//DIMENSIONS DES BLOCS COMPOSANT LE CANVAS
 var widthInBlock        = canvasWidth/blockSize;
 var heightInBlock       = canvasHeight/blockSize;
-//VARIABLE POUR STOCKER LE SCORE
 var score;
-//TIMER DU JEU
 var timeout             = null;
 
-//DECLARATION DE MES CONSTANTES
-//GAME OVER
-const GAME_OVER_TEXT         = "Game Over";
-const TITLE_FONT             = '70px sans-serif';
-const TITLE_COLOR            = '#000';
-const TITLE_ALIGN            = 'center';
-const TITLE_BASELINE         = 'middle';
-//REJOUER   
-const REPLAY_TEXT            = "Appuyez sur la barre d'espace pour rejouer.";
-const REPLAY_FONT            = '30px sans-serif';
-//DIRECTIONS
-const DIRECTION_RIGHT        = 'right';
-const DIRECTION_LEFT         = 'left';
-const DIRECTION_UP           = 'up';
-const DIRECTION_DOWN         = 'down';
-//DIRECTION INVALIDE
-const UNVALID_DIRECTION_TEXT = "Direction non-valide";
-const REPLAY_FONT            = '30px sans-serif';
-
+const TITLE_FONT        = "70px sans-serif";
+const TITLE_COLOR       = "#900";
+const DIRECTION_RIGHT   = 'right';
 
 //DEMARRAGE DU JEU
 init();
@@ -88,13 +64,13 @@ function gameOver() {
     ctx.save();
     ctx.font         = TITLE_FONT;
     ctx.fillStyle    = TITLE_COLOR;
-    ctx.textAlign    = TITLE_ALIGN;
-    ctx.textBaseline = TITLE_BASELINE;
-    ctx.fillText(GAME_OVER_TEXT, canvasWidth / 2, canvasHeight / 2 - 180);
+    ctx.textAlign    = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("Game Over", canvasWidth / 2, canvasHeight / 2 - 180);
 
     // ON LUI PROPOSE DE REJOUER EN APPUYANT SUR ESPACE
-    ctx.font         = REPLAY_FONT;
-    ctx.fillText(REPLAY_TEXT, canvasWidth / 2, canvasHeight / 2 - 120);
+    ctx.font         = "30px sans-serif";
+    ctx.fillText("Appuyez sur la barre d'espace pour rejouer.", canvasWidth / 2, canvasHeight / 2 - 120);
     ctx.restore();
 }
 
@@ -143,26 +119,21 @@ function Snake(body, direction){
     this.advance = function(){
         var nextPosition = this.body[0].slice();
         switch(this.direction){
-            //DECREMENTATION DE 1 BLOC POUR X SI LE SERPENT VA A GAUCHE
-            case DIRECTION_LEFT:
+            case "left":
                 nextPosition[0] -= 1;
                 break;
-            //INCREMENTATION DE 1 BLOC POUR X SI LE SERPENT VA A DROITE
             case DIRECTION_RIGHT:
                 nextPosition[0] += 1;
                 break;
-            //INCREMENTATION DE 1 BLOC POUR Y SI LE SERPENT VA EN BAS
-            case DIRECTION_DOWN:
+            case "down":
                 nextPosition[1] += 1;
                 break;
-            //DECREMENTATION DE 1 BLOC POUR Y SI LE SERPENT VA EN HAUT
-            case DIRECTION_UP:
+            case "up":
                 nextPosition[1] -= 1;
                 break; 
             default :
-                throw (UNVALID_DIRECTION_TEXT); 
+                throw ("Direction non-valide"); 
         }
-        //SI LE SERPENT N'A PAS MANGE DE POMME PENDANT SON ADVANCE, IL PERD SON DERNIER BLOC
         this.body.unshift(nextPosition);
         if(!this.ateApple){
             this.body.pop();
@@ -170,25 +141,21 @@ function Snake(body, direction){
             this.ateApple = false;
         }
     };
-    //MAJ DE LA DIRECTION DU SERPENT A CONDITION QU'ELLE SOIT AUTORISEE
+    //MAJ DE LA DIRECTION DU SERPENT  A CONDITION QU'ELLE SOIT AUTORISEE
     this.setDirection = function(newDirection){
     var allowedDirections;
     switch(this.direction){
-        //S'IL SE DIRIGE VERS LA GAUCHE OU LA DROITE, IL PEUT ENSUITE SE DIRIGER VERS LE HAUT OU LE BAS
-        case DIRECTION_LEFT:
+        case "left":
         case DIRECTION_RIGHT:
-            allowedDirections= [DIRECTION_UP,DIRECTION_DOWN];
+            allowedDirections= ["up","down"];
             break;
-        //S'IL SE DIRIGE VERS LE HAUT OU LE BAS, IL PEUT ENSUITE SE DIRIGER VERS LA GAUCHE OU LA DROITE
-        case DIRECTION_DOWN:
-        case DIRECTION_UP:
-            allowedDirections= [DIRECTION_LEFT, DIRECTION_RIGHT];
+        case "down":
+        case "up":
+            allowedDirections= ["left", DIRECTION_RIGHT];
             break;
-        //EXCLUSION D'AUTRES POSSIBILITES
         default :
-            throw(UNVALID_DIRECTION_TEXT); 
+            throw("Direction non-valide"); 
     }
-    //SI LES TOUCHES CHOISIES SONT VALIDES, LE SERPENT PREND LA DIRECTION CHOISIE
     if(allowedDirections.indexOf(newDirection)> -1){
         this.direction = newDirection;
     }
@@ -199,22 +166,20 @@ this.checkCollision = function(){
     // AVEC UN MUR OU LUI-MEME
     
     var rest = this.body.slice(1);
-    //SI LA POSITION X OU Y DU SERPENT DEPASSE CELLE DU CANVAS
+
     if (this.body[0][0] < 0 || 
         this.body[0][0] > widthInBlock - 1 || 
         this.body[0][1] < 0 || 
         this.body[0][1] > heightInBlock - 1) {
-        //IL Y A COLLISION
         return true;
     }
-    //SI LA POSITION X ET Y DU CORPS DU SERPENT EST LA MEME QU'UNE AUTRE PARTIE DE SON CORPS
+
     for(var i = 0; i < rest.length ; i++){
         if(this.body[0][0] == rest[i][0] && this.body[0][1] == rest[i][1]){
-            //IL Y A COLLISION
             return true;
         }
     }  
-    //SI AUCUN DES DEUX CAS NE SE PRODUIT, IL N'Y A PAS COLLISION
+
     return false;
 };
 
@@ -275,16 +240,16 @@ function handleKeyDown(event){
 
     switch( event.key) {
         case "ArrowLeft":
-            newDirection = DIRECTION_LEFT;
+            newDirection = "left";
             break;
         case "ArrowUp": 
-            newDirection = DIRECTION_UP;
+            newDirection = "up";
             break;
         case "ArrowRight": 
             newDirection = DIRECTION_RIGHT;
             break;
         case "ArrowDown": 
-            newDirection = DIRECTION_DOWN;
+            newDirection = "down";
             break;
             // LE JEU REDEMARRE SI ON APPUIE SUR ESPACE
         case " ":
@@ -293,6 +258,6 @@ function handleKeyDown(event){
         default:
             return;
     }
-    //LE SERPENT EMPREINTE LA DIRECTION CHOISIE
     snakee.setDirection(newDirection); 
 };
+
